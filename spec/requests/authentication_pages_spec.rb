@@ -3,6 +3,7 @@ require 'spec_helper'
 describe "Authentication" do
 
   subject { page }
+  let(:user) { FactoryGirl.create(:user) }
 
   describe "signin page" do
     before { visit signin_path }
@@ -43,6 +44,25 @@ describe "Authentication" do
       describe "followed by signout" do
         before { click_link "Sign out" }
         it { should have_link('Sign in') }
+      end
+    end
+  end
+  describe "authorization" do
+
+    describe "for non-signed-in users" do
+      let(:user) { FactoryGirl.create(:user) }
+
+      describe "in the Users controller" do
+
+        describe "visiting the edit page" do
+          before { visit edit_user_path(user) }
+          it { should have_selector('title', text: 'Edit user') }
+        end
+
+        describe "submitting to the update action" do
+          before { put user_path(user) }
+          specify { response.should redirect_to(signin_path) }#
+        end
       end
     end
   end
